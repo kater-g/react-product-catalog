@@ -1,0 +1,41 @@
+.layout {
+  width: min(100% - 40px, 1120px);
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.brand {
+  font-weight: 700;
+}
+
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.navigation a {
+  padding-block: 8px;
+}
+
+.navigation a[aria-current="page"] {
+  font-weight: 700;
+  text-decoration-thickness: 2px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding-block: 32px;
+}
