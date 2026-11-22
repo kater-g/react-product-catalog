@@ -2,14 +2,18 @@ import { create } from "zustand";
 import { getProducts } from "../api/products.ts";
 import type { Product } from "../types/product.ts";
 
+const PRODUCTS_PER_BATCH = 12;
+
 type LoadingStatus = "idle" | "loading" | "success" | "error";
 
 interface ProductsStore {
   products: Product[];
   favoriteIds: Product["id"][];
+  visibleCount: number;
   status: LoadingStatus;
   error: string | null;
   fetchProducts: () => Promise<void>;
+  showMoreProducts: () => void;
   toggleFavorite: (id: Product["id"]) => void;
   deleteProduct: (id: Product["id"]) => void;
 }
@@ -17,6 +21,7 @@ interface ProductsStore {
 export const useProductsStore = create<ProductsStore>()((set, get) => ({
   products: [],
   favoriteIds: [],
+  visibleCount: PRODUCTS_PER_BATCH,
   status: "idle",
   error: null,
 
@@ -41,6 +46,24 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
             : "Не удалось загрузить товары. Попробуйте ещё раз.",
       });
     }
+  },
+
+  showMoreProducts: () => {
+    set((state) => {
+      if (
+        state.status !== "success" ||
+        state.visibleCount >= state.products.length
+      ) {
+        return state;
+      }
+
+      return {
+        visibleCount: Math.min(
+          state.visibleCount + PRODUCTS_PER_BATCH,
+          state.products.length,
+        ),
+      };
+    });
   },
 
   toggleFavorite: (id) => {
