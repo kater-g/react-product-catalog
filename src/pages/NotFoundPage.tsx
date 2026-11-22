@@ -3,9 +3,11 @@ import { Link } from "react-router";
 function NotFoundPage() {
   return (
     <>
-      <h1>Страница не найдена</h1>
+      <h1 className="page-title">Страница не найдена</h1>
       <p>Проверьте адрес или вернитесь в каталог.</p>
-      <Link to="/products">Вернуться в каталог</Link>
+      <Link className="text-link" to="/products">
+        Вернуться в каталог
+      </Link>
     </>
   );
 }

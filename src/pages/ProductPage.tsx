@@ -5,8 +5,10 @@ function ProductPage() {
 
   return (
     <>
-      <h1>Продукт №{id}</h1>
-      <Link to="/products">Вернуться в каталог</Link>
+      <h1 className="page-title">Продукт №{id}</h1>
+      <Link className="text-link" to="/products">
+        Вернуться в каталог
+      </Link>
     </>
   );
 }

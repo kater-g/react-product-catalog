@@ -7,16 +7,20 @@ import styles from "./App.module.css";
 
 function App() {
   return (
-    <div className={styles.layout}>
-      <header className={styles.header}>
-        <span className={styles.brand}>Каталог продуктов</span>
-        <nav className={styles.navigation} aria-label="Основная навигация">
-          <NavLink to="/products">Продукты</NavLink>
-          <NavLink to="/create-product">Создать продукт</NavLink>
+    <div className={styles["app"]}>
+      <header className={styles["app__header"]}>
+        <span className={styles["app__brand"]}>Каталог продуктов</span>
+        <nav className={styles["app__nav"]} aria-label="Основная навигация">
+          <NavLink className={styles["app__nav-link"]} to="/products">
+            Продукты
+          </NavLink>
+          <NavLink className={styles["app__nav-link"]} to="/create-product">
+            Создать продукт
+          </NavLink>
         </nav>
       </header>
 
-      <main className={styles.main}>
+      <main className={styles["app__main"]}>
         <Routes>
           <Route path="/" element={<Navigate to="/products" replace />} />
           <Route path="/products" element={<ProductsPage />} />
