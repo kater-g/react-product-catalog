@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import ProductCard from "../components/ProductCard/ProductCard.tsx";
-import { useProductsStore } from "../store/productsStore.ts";
+import {
+  useProductsStore,
+  type ProductFilter,
+} from "../store/productsStore.ts";
 import styles from "./ProductsPage.module.css";
 
 function ProductsPage() {
@@ -10,8 +13,10 @@ function ProductsPage() {
     status,
     error,
     visibleCount,
+    filter,
     fetchProducts,
     showMoreProducts,
+    setFilter,
     toggleFavorite,
     deleteProduct,
   } = useProductsStore();
@@ -19,8 +24,16 @@ function ProductsPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const nextFocusIndex = useRef<number | null>(null);
 
-  const visibleProducts = products.slice(0, visibleCount);
-  const hasMoreProducts = visibleProducts.length < products.length;
+  const filteredProducts =
+    filter === "favorites"
+      ? products.filter((product) => favoriteIds.includes(product.id))
+      : products;
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const hasMoreProducts = visibleProducts.length < filteredProducts.length;
+  const emptyMessage =
+    filter === "favorites"
+      ? "В избранном пока нет продуктов. Добавьте их с помощью сердечка в разделе «Все»."
+      : "В каталоге пока нет продуктов.";
 
   useEffect(() => {
     void fetchProducts();
@@ -38,16 +51,20 @@ function ProductsPage() {
     const nextLink = items?.[targetIndex]?.querySelector("a");
 
     (nextLink ?? headingRef.current)?.focus();
-
     nextFocusIndex.current = null;
-  }, [visibleCount, products]);
+  }, [visibleCount, products, favoriteIds, filter]);
 
   function handleShowMore() {
     nextFocusIndex.current = visibleProducts.length;
     showMoreProducts();
   }
 
-  function handleDeleteProduct(id: number) {
+  function handleFilterChange(nextFilter: ProductFilter) {
+    nextFocusIndex.current = null;
+    setFilter(nextFilter);
+  }
+
+  function rememberFocusForRemovedCard(id: number) {
     const index = visibleProducts.findIndex((product) => product.id === id);
 
     if (index === -1) {
@@ -59,8 +76,19 @@ function ProductsPage() {
     if (item?.contains(document.activeElement)) {
       nextFocusIndex.current = index;
     }
+  }
 
+  function handleDeleteProduct(id: number) {
+    rememberFocusForRemovedCard(id);
     deleteProduct(id);
+  }
+
+  function handleToggleFavorite(id: number) {
+    if (filter === "favorites") {
+      rememberFocusForRemovedCard(id);
+    }
+
+    toggleFavorite(id);
   }
 
   return (
@@ -73,6 +101,29 @@ function ProductsPage() {
       >
         Продукты
       </h1>
+
+      <div
+        className={styles["products__filters"]}
+        role="group"
+        aria-label="Фильтр продуктов"
+      >
+        <button
+          className={styles["products__filter-button"]}
+          type="button"
+          aria-pressed={filter === "all"}
+          onClick={() => handleFilterChange("all")}
+        >
+          Все
+        </button>
+        <button
+          className={styles["products__filter-button"]}
+          type="button"
+          aria-pressed={filter === "favorites"}
+          onClick={() => handleFilterChange("favorites")}
+        >
+          Избранное
+        </button>
+      </div>
 
       {(status === "idle" || status === "loading") && (
         <p role="status">Загрузка продуктов…</p>
@@ -91,25 +142,27 @@ function ProductsPage() {
         </div>
       )}
 
-      {status === "success" && products.length === 0 && (
-        <p role="status">В каталоге пока нет продуктов.</p>
+      {status === "success" && filteredProducts.length === 0 && (
+        <p role="status">{emptyMessage}</p>
       )}
 
-      {status === "success" && products.length > 0 && (
+      {status === "success" && filteredProducts.length > 0 && (
         <>
           <ul
             className={styles["products__list"]}
             id="products-list"
             ref={listRef}
             role="list"
-            aria-label="Список продуктов"
+            aria-label={
+              filter === "favorites" ? "Избранные продукты" : "Список продуктов"
+            }
           >
             {visibleProducts.map((product) => (
               <li className={styles["products__item"]} key={product.id}>
                 <ProductCard
                   product={product}
                   isFavorite={favoriteIds.includes(product.id)}
-                  onToggleFavorite={toggleFavorite}
+                  onToggleFavorite={handleToggleFavorite}
                   onDelete={handleDeleteProduct}
                 />
               </li>
@@ -122,7 +175,7 @@ function ProductsPage() {
               role="status"
               aria-atomic="true"
             >
-              Показано {visibleProducts.length} из {products.length}
+              Показано {visibleProducts.length} из {filteredProducts.length}
             </p>
             {hasMoreProducts && (
               <button

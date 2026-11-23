@@ -4,16 +4,20 @@ import type { Product } from "../types/product.ts";
 
 const PRODUCTS_PER_BATCH = 12;
 
+export type ProductFilter = "all" | "favorites";
+
 type LoadingStatus = "idle" | "loading" | "success" | "error";
 
 interface ProductsStore {
   products: Product[];
   favoriteIds: Product["id"][];
   visibleCount: number;
+  filter: ProductFilter;
   status: LoadingStatus;
   error: string | null;
   fetchProducts: () => Promise<void>;
   showMoreProducts: () => void;
+  setFilter: (filter: ProductFilter) => void;
   toggleFavorite: (id: Product["id"]) => void;
   deleteProduct: (id: Product["id"]) => void;
 }
@@ -22,6 +26,7 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
   products: [],
   favoriteIds: [],
   visibleCount: PRODUCTS_PER_BATCH,
+  filter: "all",
   status: "idle",
   error: null,
 
@@ -48,19 +53,37 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
     }
   },
 
+  setFilter: (filter) => {
+    set((state) => {
+      if (state.filter === filter) {
+        return state;
+      }
+
+      return { filter, visibleCount: PRODUCTS_PER_BATCH };
+    });
+  },
+
   showMoreProducts: () => {
     set((state) => {
-      if (
-        state.status !== "success" ||
-        state.visibleCount >= state.products.length
-      ) {
+      if (state.status !== "success") {
+        return state;
+      }
+
+      const totalCount =
+        state.filter === "favorites"
+          ? state.products.filter((product) =>
+              state.favoriteIds.includes(product.id),
+            ).length
+          : state.products.length;
+
+      if (state.visibleCount >= totalCount) {
         return state;
       }
 
       return {
         visibleCount: Math.min(
           state.visibleCount + PRODUCTS_PER_BATCH,
-          state.products.length,
+          totalCount,
         ),
       };
     });

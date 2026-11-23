@@ -60,3 +60,43 @@
   min-width: min(100%, 220px);
   max-width: 100%;
 }
+
+.products__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.products__filter-button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  color: var(--color-accent);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.products__filter-button[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-accent-active);
+  background: var(--color-accent-soft);
+}
+
+@media (hover: hover) {
+  .products__filter-button:hover {
+    border-color: var(--color-accent-hover);
+    color: var(--color-accent-hover);
+    background: var(--color-accent-soft);
+  }
+
+  .products__filter-button[aria-pressed="true"]:hover {
+    background: var(--color-accent-soft-hover);
+  }
+}
+
+.products__filter-button:active {
+  border-color: var(--color-accent-active);
+  color: var(--color-accent-active);
+  background: var(--color-accent-soft-hover);
+}
