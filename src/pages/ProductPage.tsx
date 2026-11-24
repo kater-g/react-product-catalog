@@ -74,7 +74,7 @@ function ProductPage() {
         <p>Возможно, продукт был удалён или ссылка указана неверно.</p>
       </div>
     );
-  } else if (status === "error") {
+  } else if (!product && status === "error") {
     content = (
       <div className={styles["product__state"]}>
         <h1 className="page-title">Не удалось загрузить продукт</h1>
@@ -88,7 +88,7 @@ function ProductPage() {
         </button>
       </div>
     );
-  } else if (status === "idle" || status === "loading" || !product) {
+  } else if (!product) {
     content = (
       <div className={styles["product__state"]}>
         <h1 className="page-title">Информация о продукте</h1>

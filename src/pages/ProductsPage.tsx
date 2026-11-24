@@ -146,7 +146,7 @@ function ProductsPage() {
         <p role="status">{emptyMessage}</p>
       )}
 
-      {status === "success" && filteredProducts.length > 0 && (
+      {filteredProducts.length > 0 && (
         <>
           <ul
             className={styles["products__list"]}

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getProducts } from "../api/products.ts";
-import type { Product } from "../types/product.ts";
+import type { NewProduct, Product } from "../types/product.ts";
 
 const PRODUCTS_PER_BATCH = 12;
 
@@ -10,12 +10,14 @@ type LoadingStatus = "idle" | "loading" | "success" | "error";
 
 interface ProductsStore {
   products: Product[];
+  createdProductIds: Product["id"][];
   favoriteIds: Product["id"][];
   visibleCount: number;
   filter: ProductFilter;
   status: LoadingStatus;
   error: string | null;
   fetchProducts: () => Promise<void>;
+  addProduct: (product: NewProduct) => void;
   showMoreProducts: () => void;
   setFilter: (filter: ProductFilter) => void;
   toggleFavorite: (id: Product["id"]) => void;
@@ -24,6 +26,7 @@ interface ProductsStore {
 
 export const useProductsStore = create<ProductsStore>()((set, get) => ({
   products: [],
+  createdProductIds: [],
   favoriteIds: [],
   visibleCount: PRODUCTS_PER_BATCH,
   filter: "all",
@@ -41,7 +44,18 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
 
     try {
       const products = await getProducts();
-      set({ products, status: "success" });
+      set((state) => {
+        // Берём актуальное состояние: продукт могли создать во время запроса.
+        const createdIds = new Set(state.createdProductIds);
+
+        return {
+          products: [
+            ...state.products.filter((product) => createdIds.has(product.id)),
+            ...products.filter((product) => !createdIds.has(product.id)),
+          ],
+          status: "success",
+        };
+      });
     } catch (error) {
       set({
         status: "error",
@@ -51,6 +65,23 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
             : "Не удалось загрузить товары. Попробуйте ещё раз.",
       });
     }
+  },
+
+  addProduct: (product) => {
+    set((state) => {
+      let id = Date.now();
+
+      while (state.products.some((item) => item.id === id)) {
+        id += 1;
+      }
+
+      return {
+        products: [{ ...product, id }, ...state.products],
+        createdProductIds: [...state.createdProductIds, id],
+        filter: "all",
+        visibleCount: PRODUCTS_PER_BATCH,
+      };
+    });
   },
 
   setFilter: (filter) => {
@@ -65,10 +96,6 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
 
   showMoreProducts: () => {
     set((state) => {
-      if (state.status !== "success") {
-        return state;
-      }
-
       const totalCount =
         state.filter === "favorites"
           ? state.products.filter((product) =>
@@ -106,6 +133,9 @@ export const useProductsStore = create<ProductsStore>()((set, get) => ({
   deleteProduct: (id) => {
     set((state) => ({
       products: state.products.filter((product) => product.id !== id),
+      createdProductIds: state.createdProductIds.filter(
+        (createdId) => createdId !== id,
+      ),
       favoriteIds: state.favoriteIds.filter((favoriteId) => favoriteId !== id),
     }));
   },

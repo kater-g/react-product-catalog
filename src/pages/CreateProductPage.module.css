@@ -1,0 +1,105 @@
+.create-product {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+}
+
+.create-product__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: min(100%, 720px);
+}
+
+.create-product__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.create-product__field label {
+  font-weight: 600;
+}
+
+.create-product__field input,
+.create-product__field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-size: 1rem;
+}
+
+.create-product__field input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.create-product__field [aria-invalid="true"] {
+  border-color: var(--card-delete);
+}
+
+.create-product__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.create-product__error {
+  color: var(--card-delete);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.create-product__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.create-product__submit {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  color: var(--color-surface);
+  background: var(--color-accent);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .create-product__submit:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+  }
+}
+
+.create-product__submit:active {
+  border-color: var(--color-accent-active);
+  background: var(--color-accent-active);
+}
+
+@media (max-width: 640px) {
+  .create-product__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .create-product__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .create-product__actions a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
