@@ -4,7 +4,7 @@ const PRODUCTS_URL =
   "https://dummyjson.com/products?limit=0&select=id,title,description,price,thumbnail,category";
 const REQUEST_TIMEOUT_MS = 15_000;
 
-function isProduct(value: unknown): value is Product {
+export function isProduct(value: unknown): value is Product {
   return (
     typeof value === "object" &&
     value !== null &&
